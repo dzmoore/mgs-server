@@ -10,7 +10,7 @@
             <property name="hibernate.hbm2ddl.auto" value="create" />
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />
             <property name="hibernate.connection.charSet" value="UTF-8" />
-            <property name="hibernate.default_schema" value="mgsdbv1"/>
+            <property name="hibernate.default_schema" value="heroku_9029abf0a667c9f"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
             
             <!-- Use the C3P0 connection pool. -->
