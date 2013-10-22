@@ -1,10 +1,15 @@
 package com.eastapps.mgs.web;
 
+import com.eastapps.mgs.model.Meme;
+import com.eastapps.mgs.model.MemeBackground;
+import com.eastapps.mgs.model.MemeText;
+import com.eastapps.mgs.model.MemeUser;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
@@ -20,16 +25,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import com.eastapps.mgs.model.Meme;
-import com.eastapps.mgs.model.MemeBackground;
-import com.eastapps.mgs.model.MemeText;
-import com.eastapps.mgs.model.MemeUser;
-
 @RequestMapping("/memes")
 @Controller
 @RooWebScaffold(path = "memes", formBackingObject = Meme.class)
 public class MemeController {
-	private static final Logger logger = Logger.getLogger(MemeController.class);
+
+    private static final Logger logger = Logger.getLogger(MemeController.class);
 
     @RequestMapping(method = RequestMethod.POST, produces = "text/html")
     public String create(@Valid Meme meme, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
@@ -41,31 +42,55 @@ public class MemeController {
         meme.persist();
         return "redirect:/memes/" + encodeUrlPathSegment(meme.getId().toString(), httpServletRequest);
     }
-    
+
     @RequestMapping(method = RequestMethod.POST, value = "/create/json")
     @ResponseBody
     public Long createJson(@RequestBody @Valid Meme meme, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
-    	long result = -1L;
+        long result = -1L;
         if (bindingResult.hasErrors()) {
-        	logger.warn(StringUtils.join("validation error for meme {",meme,"}"));
-        	
+            logger.warn(StringUtils.join("validation error for meme {", meme, "}"));
         } else {
-        	if (logger.isTraceEnabled()) {
-            	logger.trace(StringUtils.join("successfully validated meme {", meme, "}"));
-        	}
-        	
+            if (logger.isTraceEnabled()) {
+                logger.trace(StringUtils.join("successfully validated meme {", meme, "}"));
+            }
+            
+            if (meme.getTopText() != null) {
+            	meme.getTopText().setId(null);
+            }
+            
+            if (meme.getBottomText() != null) {
+            	meme.getBottomText().setId(null);
+            }
+            
+            meme.setCreatedByUser(MemeUser.findMemeUser(meme.getCreatedByUser().getId()));
+            meme.setMemeBackground(MemeBackground.findMemeBackground(meme.getMemeBackground().getId()));
+            
+            meme.setId(null);
             meme.persist();
-            
             result = meme.getId();
-            
         }
-        
         if (logger.isTraceEnabled()) {
-        	logger.trace(StringUtils.join("meme id after store attempt: [",String.valueOf(result),"]"));
+            logger.trace(StringUtils.join("meme id after store attempt: [", String.valueOf(result), "]"));
         }
-        
         return result;
     }
+    
+    @RequestMapping(value = "/get_for_user/json//{page}/{size}/{user_id}")
+    @ResponseBody
+    public List<Meme> getMemesForUser(
+    	@PathVariable("user_id") final Long userId,
+    	@PathVariable("page") final Integer page,
+    	@PathVariable("size") final Integer size) 
+	{
+    	List<Meme> results = new ArrayList<Meme>(0);
+    	if (page != null || size != null) {
+    		final int sizeNo = size == null ? 10 : size.intValue();
+    		final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
+    		results = Meme.findMemesForUserId(userId, firstResult, sizeNo);
+    	}
+    	
+    	return results;
+	}
 
     @RequestMapping(params = "form", produces = "text/html")
     public String createForm(Model uiModel) {

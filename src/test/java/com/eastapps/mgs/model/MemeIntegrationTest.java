@@ -1,6 +1,7 @@
 package com.eastapps.mgs.model;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -23,7 +24,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.eastapps.mgs.util.TestUtils;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Configurable
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -31,6 +34,7 @@ import com.google.gson.Gson;
 @Transactional
 @RooIntegrationTest(entity = Meme.class)
 public class MemeIntegrationTest extends AbstractIntegrationTest {
+
 	private static final Logger logger = Logger.getLogger(MemeIntegrationTest.class);
 
     @Test
@@ -138,7 +142,7 @@ public class MemeIntegrationTest extends AbstractIntegrationTest {
 		final MemeBackground memeBackground = new MemeBackground();
 		memeBackground.setActive(true);
 		memeBackground.setDescription("test background");
-		memeBackground.setFilePath("test.path");
+		memeBackground.setFilePath("College_Freshman.jpg");
 		meme.setMemeBackground(memeBackground);
 		
 		final MemeText topText = new MemeText();
@@ -156,48 +160,65 @@ public class MemeIntegrationTest extends AbstractIntegrationTest {
 		user.setId(1L);
 		meme.setCreatedByUser(user);
 		
-		final String jsonMeme = new Gson().toJson(meme);
-		final String result = getJSONObject("http://localhost:8080/memes/create/json", jsonMeme);
+		final Long result = TestUtils.getJSONObject("/memes/create/json", meme, Long.class);
 		
-		TestCase.assertTrue(StringUtils.isNotBlank(result));
-		TestCase.assertTrue(Long.parseLong(result) > 0);
+		TestCase.assertNotNull(result);
+		TestCase.assertTrue(result > 0);
 	}
 	
-	public String getJSONObject(final String addr, final String jsonRequest) {
-		String responseStr = StringUtils.EMPTY;
+	@Test
+	public void testGetMemesForUser() {
+		final MemeUser user = new MemeUser();
+		user.setId(1L);
+	
+		final Meme meme = new Meme();
+		final MemeBackground memeBackground = new MemeBackground();
+		memeBackground.setActive(true);
+		memeBackground.setDescription("test background");
+		memeBackground.setFilePath("College_Freshman.jpg");
+		meme.setMemeBackground(memeBackground);
 		
-		try {
-			responseStr = postJson(addr, jsonRequest);
-			if (!StringUtils.isNotBlank(responseStr)) {
-				logger.warn(StringUtils.join(
-					"response empty:request=[", jsonRequest.toString(), 
-					"],addr=[", addr, "]"
-				));
-			}
-			
-		} catch (Exception e) {
-			logger.error("error occurred while attempting to get JSON obj", e);
-			
-		} 		
+		final MemeText topText = new MemeText();
+		topText.setFontSize(26.0);
+		topText.setText("top text");
 		
-		return responseStr;
+		meme.setTopText(topText);
+		
+		final MemeText bottomText = new MemeText();
+		bottomText.setFontSize(26.0);
+		bottomText.setText("bottom text");
+		meme.setBottomText(bottomText);
+		
+		meme.setCreatedByUser(user);
+		
+		final Long result = TestUtils.getJSONObject("/memes/create/json", meme, Long.class);
+		
+		TestCase.assertNotNull(result);
+		TestCase.assertTrue(result > 0);
+		
+		@SuppressWarnings("unchecked")
+		final List<Meme> memes = (List<Meme>) TestUtils.getJSONList(
+			"/memes/get_for_user/json/1/10/1", 
+			new TypeToken<Collection<MemeBackground>>(){}.getType()
+		);
+		
+		TestCase.assertNotNull("memes returned for user is null", memes);
+		TestCase.assertTrue("memes for user zero length", memes.size() > 0);
 	}
+	
+//	@Test
+//	public void testCreateSampleMeme() {
+//		testCreateMemeJson();
+//		
+//		final Meme meme = Meme.findMeme(1L);
+//		final SampleMeme sampleMeme = new SampleMeme();
+//		sampleMeme.setBackground(meme.getMemeBackground());
+//		sampleMeme.setSampleMeme(meme);
+//		
+//		TestUtils.getJSONObject("/samplememes/create/json", , responseType)
+//	}
+	
 
-	private String postJson(final String addr, final String jsonRequest) throws ClientProtocolException, IOException {
-		final DefaultHttpClient client = new DefaultHttpClient();
-		final HttpPost httpPost = new HttpPost(addr);
-		final StringEntity strEnt = new StringEntity(jsonRequest);
-		
-		httpPost.setEntity(strEnt);
-		
-		httpPost.setHeader("Accept", "application/json");
-		httpPost.setHeader("Content-type", "application/json");
-		
-		ResponseHandler<String> respHandler = new BasicResponseHandler();
-		
-		final String respStr = client.execute(httpPost, respHandler);
-		return respStr;
-	}
 }
 
 

@@ -1,6 +1,8 @@
 package com.eastapps.mgs.model;
 
 import java.util.List;
+
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -10,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -26,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemeBackground {
 
     @NotNull
+	@Basic
+	@Column(name = "active", columnDefinition = "BIT", length = 1)
     private Boolean active;
 
     private String filePath;
@@ -35,6 +41,7 @@ public class MemeBackground {
 	public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
+
 
 	public Boolean getActive() {
         return this.active;
@@ -101,6 +108,13 @@ public class MemeBackground {
 	public static List<MemeBackground> findAllMemeBackgrounds() {
         return entityManager().createQuery("SELECT o FROM MemeBackground o", MemeBackground.class).getResultList();
     }
+	
+	public static List<MemeBackground> findMemeBackgroundsByName(final String query) {
+		return entityManager()
+			.createQuery("SELECT o FROM MemeBackground o where lower(o.description) like :query", MemeBackground.class)
+			.setParameter("query", StringUtils.join("%", StringUtils.lowerCase(query), "%"))
+			.getResultList();
+	}
 
 	public static MemeBackground findMemeBackground(Long id) {
         if (id == null) return null;
@@ -108,7 +122,7 @@ public class MemeBackground {
     }
 
 	public static List<MemeBackground> findMemeBackgroundEntries(int firstResult, int maxResults) {
-        return entityManager().createQuery("SELECT o FROM MemeBackground o", MemeBackground.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+        return entityManager().createQuery("SELECT o FROM MemeBackground o order by o.description", MemeBackground.class).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
 
 	@Transactional
