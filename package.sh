@@ -1,1 +1,1 @@
-mvn clean package >mvn.log
+mvn clean package | tee mvn.log
