@@ -1,0 +1,13 @@
+# Class Files #
+*.class
+
+# Package Files #
+*.war
+*.ear
+
+*.dex
+*.apk
+
+*.out
+*.log
+target/*
