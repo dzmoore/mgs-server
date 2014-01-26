@@ -11,9 +11,6 @@
         <put-attribute name="body" value="/WEB-INF/views/memes/create.jspx"/>
     </definition>
 <definition extends="default" name="memes/update">
-        <put-attribute name="body" value="/WEB-INF/views/memes/update.jspx"/>
-    </definition>
-    <definition extends="default" name="memes/test">
-    	<put-attribute name="body" value="/WEB-INF/views/memes/test.jsp"/>
+        <put-attribute name="body" value="/WEB-INF/views/memes/update.jsp"/>
     </definition>
 </tiles-definitions>
