@@ -129,6 +129,26 @@ public class MemeController {
         meme.merge();
         return "redirect:/memes/" + encodeUrlPathSegment(meme.getId().toString(), httpServletRequest);
     }
+    
+    @RequestMapping(value = "/update.simple")
+    public String updateSimplePost(
+        @RequestParam("meme-id") final Long memeId, 
+        @RequestParam("top-text") final String topText,
+        @RequestParam("bottom-text") final String bottomText,
+        final HttpServletRequest httpServletRequest) 
+    {
+    	final Meme meme = Meme.findMeme(memeId);
+    	
+    	if (meme != null) {
+    		meme.getTopText().setText(topText);
+    		meme.getTopText().merge();
+    		
+    		meme.getBottomText().setText(bottomText);
+    		meme.getBottomText().merge();
+    	}
+    		
+    	return "redirect:/memes/" + encodeUrlPathSegment(memeId.toString(), httpServletRequest);
+    }
 
     @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
     public String updateForm(@PathVariable("id") Long id, Model uiModel) {
