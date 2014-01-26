@@ -145,6 +145,11 @@ public class MemeController {
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
         return "redirect:/memes";
     }
+    
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public String testGet() {
+    	return "memes/test";
+    }
 
     void populateEditForm(Model uiModel, Meme meme) {
         uiModel.addAttribute("meme", meme);
