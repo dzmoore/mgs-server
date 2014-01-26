@@ -132,7 +132,7 @@ public class MemeController {
 
     @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
     public String updateForm(@PathVariable("id") Long id, Model uiModel) {
-        populateEditForm(uiModel, Meme.findMeme(id));
+    	uiModel.addAttribute("meme", Meme.findMeme(id));
         return "memes/update";
     }
 
@@ -146,11 +146,6 @@ public class MemeController {
         return "redirect:/memes";
     }
     
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public String testGet() {
-    	return "memes/test";
-    }
-
     void populateEditForm(Model uiModel, Meme meme) {
         uiModel.addAttribute("meme", meme);
         uiModel.addAttribute("memebackgrounds", MemeBackground.findAllMemeBackgrounds());
