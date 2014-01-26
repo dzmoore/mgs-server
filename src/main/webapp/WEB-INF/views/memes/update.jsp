@@ -11,7 +11,7 @@
 	<input type="text" id="top-text-input" value="${meme.topText.text}"/>
 	
 	<label for="bottom-text-input">Bottom Text:</label> 
-	<input type="text" id="bottom-text-input" value="${meme.bottomText.Text}"/>
+	<input type="text" id="bottom-text-input" value="${meme.bottomText.text}"/>
 	
 	
 </div>
