@@ -133,6 +133,7 @@ public class MemeController {
     @RequestMapping(value = "/update.simple")
     public String updateSimplePost(
         @RequestParam("meme-id") final Long memeId, 
+        @RequestParam("meme-bg-id") final Long memeBgId,
         @RequestParam("top-text") final String topText,
         @RequestParam("bottom-text") final String bottomText,
         final HttpServletRequest httpServletRequest) 
@@ -140,6 +141,9 @@ public class MemeController {
     	final Meme meme = Meme.findMeme(memeId);
     	
     	if (meme != null) {
+    		meme.setMemeBackground(MemeBackground.findMemeBackground(memeBgId));
+    		meme.getMemeBackground().merge();
+    		
     		meme.getTopText().setText(topText);
     		meme.getTopText().merge();
     		
@@ -153,6 +157,7 @@ public class MemeController {
     @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
     public String updateForm(@PathVariable("id") Long id, Model uiModel) {
     	uiModel.addAttribute("meme", Meme.findMeme(id));
+    	uiModel.addAttribute("allBackgrounds", MemeBackground.findAllMemeBackgrounds());
         return "memes/update";
     }
 
