@@ -14,7 +14,22 @@
             <tr>
                <td>Background:</td>
                <td>
-                   <input type="text" id="background-text-input" value="${meme.memeBackground.description}"/>
+                   <select id="meme-bg-select" name="meme-bg-id">
+                       <c:forEach items="${allBackgrounds}" var="eaBg">
+                           <c:choose>
+                               <c:when test="${eaBg.id.longValue() == meme.memeBackground.id.longValue() }">
+                                   <option value="${eaBg.id}" selected>
+                                       <c:out value="${eaBg.description}"/>
+                                   </option>
+                               </c:when>
+                               <c:otherwise>
+                                   <option value="${eaBg.id}">
+                                       <c:out value="${eaBg.description}"/>
+                                   </option>
+                               </c:otherwise>
+                           </c:choose>
+                       </c:forEach>
+                   </select>
                </td>
             </tr>
             <tr>
