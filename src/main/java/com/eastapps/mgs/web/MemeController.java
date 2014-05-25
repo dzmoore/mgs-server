@@ -129,10 +129,35 @@ public class MemeController {
         meme.merge();
         return "redirect:/memes/" + encodeUrlPathSegment(meme.getId().toString(), httpServletRequest);
     }
+    
+    @RequestMapping(value = "/update.simple")
+    public String updateSimplePost(
+        @RequestParam("meme-id") final Long memeId, 
+        @RequestParam("meme-bg-id") final Long memeBgId,
+        @RequestParam("top-text") final String topText,
+        @RequestParam("bottom-text") final String bottomText,
+        final HttpServletRequest httpServletRequest) 
+    {
+    	final Meme meme = Meme.findMeme(memeId);
+    	
+    	if (meme != null) {
+    		meme.setMemeBackground(MemeBackground.findMemeBackground(memeBgId));
+    		meme.getMemeBackground().merge();
+    		
+    		meme.getTopText().setText(topText);
+    		meme.getTopText().merge();
+    		
+    		meme.getBottomText().setText(bottomText);
+    		meme.getBottomText().merge();
+    	}
+    		
+    	return "redirect:/memes/" + encodeUrlPathSegment(memeId.toString(), httpServletRequest);
+    }
 
     @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
     public String updateForm(@PathVariable("id") Long id, Model uiModel) {
-        populateEditForm(uiModel, Meme.findMeme(id));
+    	uiModel.addAttribute("meme", Meme.findMeme(id));
+    	uiModel.addAttribute("allBackgrounds", MemeBackground.findAllMemeBackgrounds());
         return "memes/update";
     }
 
@@ -145,7 +170,7 @@ public class MemeController {
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
         return "redirect:/memes";
     }
-
+    
     void populateEditForm(Model uiModel, Meme meme) {
         uiModel.addAttribute("meme", meme);
         uiModel.addAttribute("memebackgrounds", MemeBackground.findAllMemeBackgrounds());

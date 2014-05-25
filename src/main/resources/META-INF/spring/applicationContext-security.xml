@@ -13,7 +13,7 @@
     <authentication-manager>
       <authentication-provider>
         <user-service>
-        <user name="mgsowner" password="1865Mgspass" authorities="ROLE_USER" />
+        <user name="${web.user}" password="${web.password}" authorities="ROLE_USER" />
         </user-service>
       </authentication-provider>
     </authentication-manager>
